@@ -24,6 +24,9 @@ async function connectMongoDB() {
   return db;
 }
 
+const DataLoader = require("dataloader");
+const _ = require("lodash");
+
 // const { Client } = require("pg");
 // var connectionString = "postgres://postgres:postgres@localhost:5432/reactdb";
 // const client = new Client({
@@ -35,15 +38,14 @@ const resolvers = require("./graphql/resolvers");
 async function main() {
   const db = await connectMongoDB();
 
-  // try {
-  //   const x = await client.connect();
-  //   var dbo = client.db("denemedb");
-  //   var db = dbo.collection("reactadmin").find({});
-  //   const t = db.users.find({});
-  //   console.log(t);
-  // } catch (e) {
-  //   console.error(e);
-  // }
+  const loader = new DataLoader(async ids => {
+    const results = await db
+      .collection("posts")
+      .find({ user: { $in: ids } })
+      .toArray();
+    return results;
+  });
+
   const typeDefs = await importSchema("./graphql/schema.graphql");
   const server = new ApolloServer({
     typeDefs,
@@ -67,7 +69,7 @@ async function main() {
 
       return {
         db,
-
+        loader,
         // User,
         // Post,
         activeUser: req ? req.activeUser : null
