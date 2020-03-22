@@ -1,0 +1,29 @@
+scalar Date
+
+type User {
+  _id: ID!
+  fullName: String
+  username: String
+  posts: [Post]
+}
+
+type Query {
+  user(id: ID!): User!
+  users: [User!]!
+}
+
+type Mutation {
+  createUser(data: createUserInput!): User
+}
+
+input updateProfileInput {
+  _id: ID!
+  username: String!
+  password: String
+}
+
+input createUserInput {
+  fullName: String
+  username: String!
+  password: String
+}
